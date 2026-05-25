@@ -25,12 +25,14 @@ def csvquery(source, url, key):
 
 
 
+def databasepopulator(path):
+        sources = pl.read_csv("data_ref/url.csv")
+        sourcesdict = sources.to_dicts()
+        for s in sourcesdict:
+            res = csvquery(s['source'], s['url'], s['key'])
+            if s['source'] == 'REPD':
+                res = repd_proc(res)
+                # Read only to false to allow me to write to the new db.
+                with ddb.connect(database = path, read_only = False) as con:
+                     con.execute(f"CREATE TABLE IF NOT EXISTS {s['source']} AS SELECT * FROM res;")
 
-sources = pl.read_csv("data_ref/url.csv")
-sourcesdict = sources.to_dicts()
-for s in sourcesdict:
-    res = csvquery(s['source'], s['url'], s['key'])
-    if s['source'] == 'REPD':
-        res = repd_proc(res)
-        print(s['source'])
-        print(res)
